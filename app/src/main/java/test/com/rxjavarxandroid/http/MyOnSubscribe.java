@@ -1,8 +1,9 @@
 package test.com.rxjavarxandroid.http;
 
-import rx.Observable;
 
-public abstract class MyOnSubscribe<C> implements Observable.OnSubscribe<C> {
+import io.reactivex.ObservableOnSubscribe;
+
+public abstract class MyOnSubscribe<C> implements ObservableOnSubscribe {
     private C c;
 
     public MyOnSubscribe(C c) {

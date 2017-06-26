@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import io.reactivex.disposables.Disposable;
 import test.com.rxjavarxandroid.R;
 import test.com.rxjavarxandroid.comman.RxjavaRetrofitApplication;
 import test.com.rxjavarxandroid.dao.DaoUtils;
@@ -45,11 +46,17 @@ public class MainActivity extends AppCompatActivity {
                 List<ChannleEntity>  ChannleEntityList=  DaoUtils.getChannleInstance().QueryAll(ChannleEntity.class);
                 if(ChannleEntityList!=null&&ChannleEntityList.size()>0){
                     resultTV.setText(ChannleEntityList.toString());
+                    ToastUtil.show("数据库数据");
                 }else {
 
                     RxjavaRetrofitApplication.getInstance().getDomyShowService().getChannleList(new SubscriberListener<ApiResult<List<ChannleEntity>>>() {
                         @Override
-                        public void onCompleted() {
+                        public void onComplete() {
+                            ToastUtil.show("网络数据");
+                        }
+
+                        @Override
+                        public void onSubscribe(Disposable s) {
 
                         }
 

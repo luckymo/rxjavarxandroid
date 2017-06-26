@@ -1,12 +1,17 @@
 package test.com.rxjavarxandroid.http;
 
+import org.reactivestreams.Subscriber;
+
 import java.util.concurrent.TimeUnit;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * Rxjava封装工具类
@@ -35,14 +40,14 @@ public class RxjavaUtil {
         Observable.just(uiTask)
                 .delay(time, timeUnit)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<UITask<T>>() {
+                .subscribe(new Consumer<UITask<T>>() {
                     @Override
-                    public void call(UITask<T> uitask) {
+                    public void accept(UITask<T> uitask) {
                         uitask.doInUIThread();
                     }
-                }, new Action1<Throwable>() {
+                }, new Consumer<Throwable>() {
                     @Override
-                    public void call(Throwable throwable) {
+                    public void accept(Throwable throwable) {
                         throwable.printStackTrace();
                     }
                 });
@@ -67,14 +72,14 @@ public class RxjavaUtil {
         Observable.just(ioTask)
                 .delay(time, timeUnit)
                 .observeOn(Schedulers.io())
-                .subscribe(new Action1<IOTask<T>>() {
+                .subscribe(new Consumer<IOTask<T>>() {
                     @Override
-                    public void call(IOTask<T> ioTask) {
+                    public void accept(IOTask<T> ioTask) {
                         ioTask.doInIOThread();
                     }
-                }, new Action1<Throwable>() {
+                }, new Consumer<Throwable>() {
                     @Override
-                    public void call(Throwable throwable) {
+                    public void accept(Throwable throwable) {
                         throwable.printStackTrace();
                     }
                 });
@@ -100,25 +105,26 @@ public class RxjavaUtil {
      */
     public static <T> void executeRxTaskDelay(CommonRxTask<T> t, long time, TimeUnit timeUnit) {
         MyOnSubscribe<CommonRxTask<T>> onsubscribe = new MyOnSubscribe<CommonRxTask<T>>(t) {
+
             @Override
-            public void call(Subscriber<? super CommonRxTask<T>> subscriber) {
+            public void subscribe(@NonNull ObservableEmitter e) throws Exception {
                 getT().doInIOThread();
-                subscriber.onNext(getT());
-                subscriber.onCompleted();
+                e.onNext(getT());
+                e.onComplete();
             }
         };
         Observable.create(onsubscribe)
                 .delay(time, timeUnit)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<CommonRxTask<T>>() {
+                .subscribe(new Consumer<CommonRxTask<T>>() {
                     @Override
-                    public void call(CommonRxTask<T> t) {
+                    public void accept(CommonRxTask<T> t) {
                         t.doInUIThread();
                     }
-                }, new Action1<Throwable>() {
+                }, new Consumer<Throwable>() {
                     @Override
-                    public void call(Throwable throwable) {
+                    public void accept(Throwable throwable) {
                         throwable.printStackTrace();
                     }
                 });

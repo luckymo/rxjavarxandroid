@@ -2,18 +2,25 @@ package test.com.rxjavarxandroid.api;
 
 import android.content.Context;
 
+import junit.framework.Assert;
+
+import org.reactivestreams.Subscriber;
+
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
-import rx.functions.Func2;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import test.com.rxjavarxandroid.entity.ApiResult;
 import test.com.rxjavarxandroid.entity.ChannleEntity;
 import test.com.rxjavarxandroid.exception.ApiException;
@@ -52,20 +59,19 @@ public class DomyShowService {
         toSubscribe(observable, new TransactionSubscriber<ApiResult>(SubscriberListener,context));
     }
 
-    private <T> void toSubscribe(Observable<T> o, Subscriber<T> s){
+    private <T> void toSubscribe(Observable<T> o, Observer<T> s){
+        final AtomicInteger atomicInteger = new AtomicInteger(0);
         o.subscribeOn(Schedulers.io())
                 .unsubscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 //设置重连请求次数
-                .retry(new Func2<Integer, Throwable, Boolean>() {
+                .doOnSubscribe(new Consumer() {
                     @Override
-                    public Boolean call(Integer integer, Throwable throwable) {
-                        if (throwable instanceof SocketTimeoutException && integer < 2)
-                            return true;
-                        else
-                            return false;
+                    public void accept(@NonNull Object o) throws Exception {
+                        atomicInteger.incrementAndGet();
                     }
                 })
+                .retry(2)
                 .onErrorResumeNext(new HttpResponseFunc<T>())//网络&解析错误转换为友好提示
                 .subscribe(s);
     }
@@ -74,9 +80,11 @@ public class DomyShowService {
      * 服务器返回的错误码(400，504等)转换为用户可读的文字
      * @param <T>
      */
-    private static class HttpResponseFunc<T> implements Func1<Throwable, Observable<T>> {
-        @Override public Observable<T> call(Throwable t) {
-            return Observable.error(ApiException.handleException(t));
+    private static class HttpResponseFunc<T> implements Function<Throwable, Observable<T>> {
+
+        @Override
+        public Observable<T> apply(Throwable throwable) {
+            return Observable.error(ApiException.handleException(throwable));
         }
     }
 

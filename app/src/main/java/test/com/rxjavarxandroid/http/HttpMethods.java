@@ -1,7 +1,7 @@
 package test.com.rxjavarxandroid.http;
 
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import test.com.rxjavarxandroid.api.ApiService;
 
@@ -25,7 +25,7 @@ public class HttpMethods {
         retrofit=new Retrofit.Builder()
                 .client(OKHttpFactory.INSTANCE.getOkHttpClient())
                 .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .baseUrl(ApiService.BASE_URL)
                 .build();
         apiService=retrofit.create(ApiService.class);

@@ -1,6 +1,9 @@
 package test.com.rxjavarxandroid.subscriber;
 
 
+import org.reactivestreams.Subscription;
+
+import io.reactivex.disposables.Disposable;
 import test.com.rxjavarxandroid.exception.ApiException;
 
 /**
@@ -22,6 +25,8 @@ public interface SubscriberListener<T> {
     /**
      * 事件队列完结
      */
-    void onCompleted();
+    void onComplete();
+
+    void onSubscribe(Disposable s);
 
 }

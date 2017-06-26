@@ -4,7 +4,9 @@ import android.content.Context;
 import android.util.Log;
 
 
-import rx.Subscriber;
+import org.reactivestreams.Subscription;
+
+import io.reactivex.disposables.Disposable;
 import test.com.rxjavarxandroid.exception.ApiException;
 
 /**
@@ -21,13 +23,6 @@ public class TransactionSubscriber<T> extends  BaseSubscriber<T> {
         this.context = context;
     }
 
-    /**
-     * 事件未发出前调用，可以做一些准备工作
-     */
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
 
     /**
      * 相当于onclick事件
@@ -44,10 +39,10 @@ public class TransactionSubscriber<T> extends  BaseSubscriber<T> {
      * 事件队列完结
      */
     @Override
-    public void onCompleted() {
-        super.onCompleted();
+    public void onComplete() {
+        super.onComplete();
         if (mSubscriberListener != null) {
-            mSubscriberListener.onCompleted();
+            mSubscriberListener.onComplete();
         }
     }
 
@@ -63,4 +58,11 @@ public class TransactionSubscriber<T> extends  BaseSubscriber<T> {
         }
     }
 
+    @Override
+    public void onSubscribe(Disposable s) {
+    super.onSubscribe(s);
+        if (mSubscriberListener != null) {
+            mSubscriberListener.onSubscribe(s);
+        }
+    }
 }

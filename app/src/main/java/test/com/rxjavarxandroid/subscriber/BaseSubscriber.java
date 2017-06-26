@@ -19,10 +19,14 @@ package test.com.rxjavarxandroid.subscriber;
 import android.content.Context;
 
 
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 import java.lang.ref.WeakReference;
 
-import rx.Subscriber;
+import io.reactivex.Observer;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import test.com.rxjavarxandroid.exception.ApiException;
 import test.com.rxjavarxandroid.utils.HttpLog;
 
@@ -36,7 +40,7 @@ import static test.com.rxjavarxandroid.utils.Utils.isNetworkAvailable;
  * 3.统一处理了异常<br>
  * 作者：lhj
  */
-public abstract class BaseSubscriber<T> extends Subscriber<T> {
+public abstract class BaseSubscriber<T> implements Observer<T> {
     public WeakReference<Context> contextWeakReference;
 
     public BaseSubscriber() {
@@ -60,19 +64,19 @@ public abstract class BaseSubscriber<T> extends Subscriber<T> {
         }
     }
 
-
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onSubscribe(@NonNull Disposable d) {
         HttpLog.e("-->http is start");
         if (contextWeakReference != null && !isNetworkAvailable(contextWeakReference.get())) {
             //Toast.makeText(context, "无网络，读取缓存数据", Toast.LENGTH_SHORT).show();
-            onCompleted();
+            onComplete();
+            return;
         }
     }
 
+
     @Override
-    public void onCompleted() {
+    public void onComplete() {
         HttpLog.e("-->http is Complete");
     }
 

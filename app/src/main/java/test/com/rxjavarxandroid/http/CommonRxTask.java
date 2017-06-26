@@ -1,6 +1,8 @@
 package test.com.rxjavarxandroid.http;
 
-import rx.Observable;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableOnSubscribe;
 
 /**
  * 通用的Rx执行任务
@@ -30,7 +32,7 @@ public abstract class CommonRxTask<T> {
     public abstract void doInUIThread();
 
 
-    public abstract class MyOnSubscribe<C> implements Observable.OnSubscribe {
+    public abstract class MyOnSubscribe<C> implements ObservableOnSubscribe {
         private C t;
 
         public MyOnSubscribe(C c) {

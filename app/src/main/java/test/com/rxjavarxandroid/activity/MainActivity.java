@@ -21,7 +21,9 @@ import test.com.rxjavarxandroid.subscriber.SubscriberListener;
 import test.com.rxjavarxandroid.utils.HttpLog;
 import test.com.rxjavarxandroid.utils.ToastUtil;
 
-
+/**
+ * 首页测试
+ */
 public class MainActivity extends AppCompatActivity {
 
     private String tag="MainActivity";
